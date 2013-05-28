@@ -12,7 +12,12 @@
 #define HIGH_CON 1
 #define LOW_CON 0
 #define TIME_OUTPUT 12000
-#define OUTPUT_FOLLOW 0
+#define OUTPUT_FOLLOW 1
+
+#define HIGH 1
+#define LOW 0
+
+#define min2_output output[6]
 //输入信号
 sbit IN1 = P3^2;
 sbit IN2 = P3^3;
@@ -38,64 +43,24 @@ sbit CLEAR_ALARM = P1^7;//报警解除输入
 
 unsigned char input[7] = {1,1,1,1,1,1,1};//输入缓冲
 unsigned char output[7] = {0,0,0,0,0,0,0};//输出缓冲
-unsigned long sec_count[6] = {0,0,0,0,0,0};
 
+unsigned char flg_10ms = 0;
+unsigned long count_10ms[6]={0,0,0,0,0,0};
+unsigned char flg_2min_come[6]={0,0,0,0,0,0};
 
-unsigned char sub_system_state[6]={1,1,1,1,1,1};
-
-unsigned char system_state=1;
-
-unsigned char clear_alarm_state = 1;
-
-unsigned char flg_timer_running = 0;//初始状态定时器没有在运行
-//unsigned char alarm_clear = 1;
-
-unsigned char low_high_input_select_flg = 0;
 
 void init_timer0(void);
 void init_port(void);
 void system_handle(void);
-void output_delay(unsigned char parm);
-void delayms(unsigned int delay_time);
 void io_handle(void);
-void delay_ouput(unsigned char parm);
-unsigned char timeout_flg[5];
-unsigned char en_soft_timer[5];
+
+
 
 void main(void)
 {
    init_port();//初始化io口
    
    init_timer0();
-
-   low_high_input_select = 1;
-   if(low_high_input_select)
-   {
-   		delayms(6000);
-		if(low_high_input_select)
-		{
-			low_high_input_select_flg = 1;
-			input[0] = 0;
-			input[1] = 0;
-			input[2] = 0;
-			input[3] = 0;
-			input[4] = 0;
-			input[5] = 0;
-			//input[6] = 0;			
-			
-		}   		
-   }
-   else
-   {
-   		low_high_input_select_flg = 0;	
-			input[0] = 1;
-			input[1] = 1;
-			input[2] = 1;
-			input[3] = 1;
-			input[4] = 1;
-			input[5] = 1;
-			input[6] = 1;	
-   }
    
    EA =1;
    while(1)
@@ -104,11 +69,6 @@ void main(void)
     }
 }
 
-//短暂延时函数
-void delayms(unsigned int delay_time)
-{
-    while(delay_time--);
-}
 
 void init_port(void)
 {
@@ -133,8 +93,8 @@ void timer0_int() interrupt 1
   TH0 = 0xD8;
 
   TL0 = 0xF0;
-  
-  schedule_timer();
+  flg_10ms = 1;
+  //schedule_timer();
  // time_count_30min();
   io_handle();
  
@@ -151,178 +111,50 @@ void init_timer0(void)
 //信号处理程序
 void system_handle(void)
 {
-
-//	static unsigned char alarm_key_pressed = 0;
-	unsigned char i;
-	if(low_high_input_select_flg==1)
+unsigned char i =0;
+	//输入 输出 对应通道处理
+	if(flg_10ms)//10ms置位一次
+	{
+		flg_10ms = 0;//须在此清零
+		
+		for(i=0;i<6;i++)
 		{
-			switch(system_state)
+			if(input[i]==LOW)
 			{
-				case 1:
-					for(i=0;i<6;i++)
-					{
-						if((input[i]==HIGH_CON))
-						{
-							output[i] = 1;
-							if(flg_timer_running==0)
-							{
-								sign_timer(TIME_OUTPUT,delay_ouput,1);
-								flg_timer_running = 1;	
-							}
-	
-						}
-						else
-						{
-							#if OUTPUT_FOLLOW
-								output[i] = 0;
-							#endif
-						}
-					}	
-				break;
-				case 2://do nothing 
-				break;
-				case 3:
-					i = 0;
-					for(i=0;i<6;i++)
-					{
-						switch(sub_system_state[i])
-						{
-							case 1://如果信号仍然有效
-								if(input[i]==HIGH_CON)
-								{
-									//waiting
-								}
-								else
-								{
-									sub_system_state[i] = 2;
-								}
-							break;
-							case 2:
-								if(input[i]==HIGH_CON)//信号有效
-								{
-									sub_system_state[i] = 1;
-									output[i] = 1;
-									if(flg_timer_running==0)
-									{
-										sign_timer(TIME_OUTPUT,delay_ouput,1);
-										flg_timer_running = 1;	
-									}			
-								}
-								else
-								{
-									//do nothing
-								}
-							break;
-							default:
-							break;
-						}	
-					}	
-				break;
-				default:
-				break;
-			}	
-		}
-	else 
-		{
-			switch(system_state)
-			{
-				case 1:
-					for(i=0;i<6;i++)
-					{
-						if((input[i]==LOW_CON))
-						{
-							output[i] = 1;
-							if(flg_timer_running==0)
-							{
-								sign_timer(TIME_OUTPUT,delay_ouput,1);
-								flg_timer_running = 1;	
-							}
-						}
-						else
-						{
-						#if OUTPUT_FOLLOW
-							output[i] = 0;
-						#endif
-							
-						}
-					}	
-				break;
-				case 2://do nothing 
-				break;
-				case 3:
-					for(i=0;i<6;i++)
-					{
-						switch(sub_system_state[i])
-						{
-							case 1://如果信号仍然有效
-								if(input[i]==LOW_CON)
-								{
-									//waiting
-								}
-								else
-								{
-									sub_system_state[i] = 2;
-								}
-							break;
-							case 2:
-								if(input[i]==LOW_CON)//信号有效
-								{
-									sub_system_state[i] = 1;
-									output[i] = 1;
-									if(flg_timer_running==0)
-									{
-										sign_timer(TIME_OUTPUT,delay_ouput,1);
-										flg_timer_running = 1;	
-									}			
-								}
-								else
-								{
-									//do nothing
-								}
-							break;
-							default:
-							break;
-						}	
-					}	
-				break;
-				default:
-				break;
+				output[i] = HIGH;
+				count_10ms[i]++;
+				if(count_10ms[i]==TIME_OUTPUT)
+				{
+					flg_2min_come[i] = 1;
+					min2_output = 1;
+					count_10ms[i] =0;
+				}
+				
 			}
-		}
-		switch(clear_alarm_state)
-			{
-				case 1:
-					if(input[6]==0)//解除报警按钮按下
-					{
-					//-----------------------------
-					//	system_state = 2;
-					//-----------------------------
-						clear_alarm_state = 2;
-						//解除所有报警
-						for(i=0;i<6;i++)
-						{
-							sub_system_state[i] = 1;//都在第一步
-							output[i] = 0;
-						}
-						output[6] = 0;//2min output	
-						stop_all_timer();
-					}	
-				break;
-				case 2:
-					if(input[6]==1)//按键释放
-					{
-						//-----------------------------
-					//	system_state = 3;
-							//-----------------------------
-						clear_alarm_state = 1;
-						flg_timer_running = 0;
-					}		
-				break;	
-				default:
-					clear_alarm_state = 1;
-				break;
+			else
+			{	
+				output[i] = LOW;
+				count_10ms[i] = 0;
+				if(flg_2min_come[i])
+				{
+					flg_2min_come[i] = 0;
+					min2_output = 0;
+				}
 			}
+		}	
+	}
 
+	//消音按键按下
+	if(input[6]==0)
+	{
+		for(i=0;i<6;i++)
+		{
+			count_10ms[i] =0;	
+			flg_2min_come[i] = 0;
+			min2_output = 0;
+		}
+		
+	}
 }
 
 void io_handle(void)
@@ -495,9 +327,3 @@ void io_handle(void)
 	 OUT_2MIN = (bit)output[6];
 }
 
-void delay_ouput(unsigned char parm)
-{
-	parm = parm;
-    output[6] = 1;
-   	flg_timer_running = 0;	
-}
