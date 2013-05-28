@@ -1,0 +1,106 @@
+<html>
+<body>
+<pre>
+<h1>礦ision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Administrator\桌面\卢工 报警器\程序V2\alarm.uv2
+Project File Date:  04/22/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(109): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(218): error C187: not an lvalue
+SRC\MAIN.C(228): error C187: not an lvalue
+SRC\MAIN.C(240): error C187: not an lvalue
+SRC\MAIN.C(250): error C187: not an lvalue
+SRC\MAIN.C(262): error C187: not an lvalue
+SRC\MAIN.C(272): error C187: not an lvalue
+SRC\MAIN.C(284): error C187: not an lvalue
+SRC\MAIN.C(294): error C187: not an lvalue
+SRC\MAIN.C(306): error C187: not an lvalue
+SRC\MAIN.C(316): error C187: not an lvalue
+SRC\MAIN.C(328): error C187: not an lvalue
+SRC\MAIN.C(338): error C187: not an lvalue
+SRC\MAIN.C(356): error C202: 'alarm_clear': undefined identifier
+compiling time.c...
+Target not created
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(110): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(124): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(138): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(152): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(166): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(180): error C202: 'delay_ouput': undefined identifier
+SRC\MAIN.C(232): error C187: not an lvalue
+SRC\MAIN.C(242): error C187: not an lvalue
+SRC\MAIN.C(254): error C187: not an lvalue
+SRC\MAIN.C(264): error C187: not an lvalue
+SRC\MAIN.C(276): error C187: not an lvalue
+SRC\MAIN.C(286): error C187: not an lvalue
+SRC\MAIN.C(298): error C187: not an lvalue
+SRC\MAIN.C(308): error C187: not an lvalue
+SRC\MAIN.C(320): error C187: not an lvalue
+SRC\MAIN.C(330): error C187: not an lvalue
+SRC\MAIN.C(342): error C187: not an lvalue
+SRC\MAIN.C(352): error C187: not an lvalue
+compiling time.c...
+Target not created
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(369): warning C280: 'parm': unreferenced local variable
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  TIME_COUNT_30MIN
+    MODULE:  main.obj (MAIN)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  TIME_COUNT_30MIN
+    MODULE:  main.obj (MAIN)
+    ADDRESS: 03DEH
+Program Size: data=113.0 xdata=0 code=1148
+creating hex file from "alarmv2"...
+"alarmv2" - 0 Error(s), 4 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(85): warning C206: 'time_count_30min': missing function-prototype
+SRC\MAIN.C(369): warning C280: 'parm': unreferenced local variable
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  TIME_COUNT_30MIN
+    MODULE:  main.obj (MAIN)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  TIME_COUNT_30MIN
+    MODULE:  main.obj (MAIN)
+    ADDRESS: 03DEH
+Program Size: data=113.0 xdata=0 code=1148
+creating hex file from "alarmv2"...
+"alarmv2" - 0 Error(s), 5 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(369): warning C280: 'parm': unreferenced local variable
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1145
+creating hex file from "alarmv2"...
+"alarmv2" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1143
+creating hex file from "alarmv2"...
+"alarmv2" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1143
+creating hex file from "alarmv2"...
+"alarmv2" - 0 Error(s), 1 Warning(s).

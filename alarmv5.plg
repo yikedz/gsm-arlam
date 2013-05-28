@@ -1,0 +1,91 @@
+<html>
+<body>
+<pre>
+<h1>礦ision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Administrator\桌面\新建文件夹 (2)\卢工 报警器\程序V2\alarm.uv2
+Project File Date:  04/25/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1084
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1084
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=113.0 xdata=0 code=1086
+creating hex file from "alarmv5"...
+"alarmv5" - 0 Error(s), 1 Warning(s).

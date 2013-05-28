@@ -1,0 +1,91 @@
+C51 COMPILER V8.02   TIME                                                                  05/06/2013 13:23:29 PAGE 1   
+
+
+C51 COMPILER V8.02, COMPILATION OF MODULE TIME
+OBJECT MODULE PLACED IN time.obj
+COMPILER INVOKED BY: e:\Keil\C51\BIN\C51.EXE src\time.c BROWSE DEBUG OBJECTEXTEND PRINT(.\time.lst) OBJECT(time.obj)
+
+line level    source
+
+   1          #include "time.h"
+   2          
+   3          SOFT_TIMER soft_timer[MAX_SOFT_TIMER_NUM];
+   4          
+   5          //分配定时器
+   6          //class_id 为定时器分类码
+   7          void sign_timer(unsigned int time_set,void (*pfun)(unsigned char),unsigned char parm)
+   8          {
+   9   1              unsigned char i;
+  10   1              for(i=0;i<MAX_SOFT_TIMER_NUM;i++)
+  11   1              {
+  12   2                      if(soft_timer[i].idle ==0)//当前定时器空闲
+  13   2                      {
+  14   3                              //soft_timer[i].class_id = class_id;
+  15   3                              soft_timer[i].pause = 0;
+  16   3                              soft_timer[i].idle = 1;
+  17   3                              soft_timer[i].parm = parm;//保存函数参数 
+  18   3                              soft_timer[i].current_count =0;
+  19   3                              soft_timer[i].setting_count = time_set;
+  20   3                              soft_timer[i].pfun = pfun;
+  21   3                              break;//结束当前循环
+  22   3                      }
+  23   2              }
+  24   1      }
+  25          //软件定时器调度函数 放在定时器内运行
+  26          void schedule_timer(void)
+  27          {
+  28   1              unsigned char i;
+  29   1              for(i=0;i<MAX_SOFT_TIMER_NUM;i++)
+  30   1              {
+  31   2                      if(soft_timer[i].idle ==1)
+  32   2                      {
+  33   3                              if(soft_timer[i].pause!=1)//暂停定时器
+  34   3                              {
+  35   4                                      soft_timer[i].current_count++;
+  36   4                                      if(soft_timer[i].setting_count == soft_timer[i].current_count)//开始
+  37   4                                      {
+  38   5                                              //释放当前定时器
+  39   5                                              soft_timer[i].idle = 0;
+  40   5                                              soft_timer[i].current_count = 0;
+  41   5                                              soft_timer[i].setting_count = 0;
+  42   5                                              (*soft_timer[i].pfun)(soft_timer[i].parm);//调用指定的函数
+  43   5                                      }                               
+  44   4                              }
+  45   3                      }
+  46   2              }
+  47   1      }
+  48          
+  49          void stop_all_timer(void)
+  50          {
+  51   1              unsigned char i;
+  52   1              for(i=0;i<MAX_SOFT_TIMER_NUM;i++)
+  53   1              {
+  54   2                      if(soft_timer[i].idle ==1)//当前定时器空闲
+  55   2                      {
+C51 COMPILER V8.02   TIME                                                                  05/06/2013 13:23:29 PAGE 2   
+
+  56   3                              soft_timer[i].idle = 0;
+  57   3                      }
+  58   2              }       
+  59   1      }
+  60          
+  61          
+  62          
+  63          
+  64          
+  65          
+  66          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    275    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     30       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

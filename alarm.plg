@@ -1,0 +1,80 @@
+<html>
+<body>
+<pre>
+<h1>礦ision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Administrator\桌面\卢工 报警器\程序V2\alarm.uv2
+Project File Date:  04/22/2013
+
+<h2>Output:</h2>
+compiling main.c...
+src\main.c - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling time.c...
+SRC\TIME.C(56): error C204: 'class_id': undefined member
+Target not created
+Build target 'Target 1'
+compiling main.c...
+compiling time.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?IO_HANDLE?MAIN
+Program Size: data=112.0 xdata=0 code=981
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?IO_HANDLE?MAIN
+Program Size: data=112.0 xdata=0 code=981
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=112.0 xdata=0 code=984
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=112.0 xdata=0 code=984
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=112.0 xdata=0 code=984
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=112.0 xdata=0 code=984
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=112.0 xdata=0 code=984
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?MAIN
+Program Size: data=112.0 xdata=0 code=984
+creating hex file from "alarm"...
+"alarm" - 0 Error(s), 1 Warning(s).
