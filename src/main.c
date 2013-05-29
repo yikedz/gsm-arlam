@@ -54,7 +54,7 @@ void init_port(void);
 void system_handle(void);
 void io_handle(void);
 
-
+unsigned char input_valid[5] = {0,0,0,0,0};
 
 void main(void)
 {
@@ -111,47 +111,164 @@ void init_timer0(void)
 //信号处理程序
 void system_handle(void)
 {
-unsigned char i =0;
-	//输入 输出 对应通道处理
-	if(flg_10ms)//10ms置位一次
+	static unsigned char system_state = 1;
+
+	static unsigned char  sub_system_state[5]={1,1,1,1,1};
+	unsigned char i =0;
+	switch(system_state)
 	{
-		flg_10ms = 0;//须在此清零
-		
-		for(i=0;i<6;i++)
-		{
-			if(input[i]==LOW)
+		case 1:
+			//输入 输出 对应通道处理
+			if(flg_10ms)//10ms置位一次
 			{
-				output[i] = HIGH;
-				count_10ms[i]++;
-				if(count_10ms[i]==TIME_OUTPUT)
+				flg_10ms = 0;//须在此清零
+		
+				//控制输出端输出
+				if((input[0]==LOW)||(input[1]==LOW)||(input[2]==LOW)||(input[3]==LOW)||(input[4]==LOW))
+				{	
+					output[5] = 1;
+				}
+				else
 				{
-					flg_2min_come[i] = 1;
+					output[5] = 0;
+				}
+				//2min延时
+				for(i=0;i<5;i++)
+				{
+					if(input[i]==LOW)
+					{
+						count_10ms[i]++;
+						if(count_10ms[i]==TIME_OUTPUT)
+						{
+							flg_2min_come[i] = 1;
+							count_10ms[i] =0;
+						}
+						
+					}
+					else
+					{	
+						count_10ms[i] = 0;
+		
+						if(flg_2min_come[i])
+						{
+						   flg_2min_come[i] = 0;
+						}
+					}
+				}
+		
+		
+				if(flg_2min_come[0]==1||flg_2min_come[1]==1||flg_2min_come[2]==1||flg_2min_come[3]==1||flg_2min_come[4]==1)
+				{
 					min2_output = 1;
-					count_10ms[i] =0;
 				}
-				
-			}
-			else
-			{	
-				output[i] = LOW;
-				count_10ms[i] = 0;
-				if(flg_2min_come[i])
+				else
 				{
-					flg_2min_come[i] = 0;
-					min2_output = 0;
+					min2_output = 0;	
 				}
+			
 			}
-		}	
+		break;
+		case 2:
+		break;
+		case 3:
+		for(i=0;i<5;i++)
+		{
+			switch(sub_system_state[i])
+			{
+				case 1:
+					if(input[i]==LOW)//没有释放
+					{
+						input_valid[i] = 0;		
+					}
+					else
+					{
+						input_valid[i] = 0;	
+						sub_system_state[i] = 2;
+					}
+				break;
+				case 2:
+					if(input[i]==LOW)
+					{
+						input_valid[i] = 1;	
+					}
+					else
+					{
+						input_valid[i] = 0;
+					}
+					   //enable_output[i] = 1;
+				break;
+				default:
+					sub_system_state[i] = 1;
+				break;
+			}			
+		}
+
+
+			//输入 输出 对应通道处理
+			if(flg_10ms)//10ms置位一次
+			{
+				flg_10ms = 0;//须在此清零
+		
+				//控制输出端输出
+				if((input_valid[0]==1)||(input_valid[1]==1)||(input_valid[2]==1)||(input_valid[3]==1)||(input_valid[4]==1))
+				{	
+					output[5] = 1;
+				}
+				else
+				{
+					output[5] = 0;
+				}
+				//2min延时
+				for(i=0;i<5;i++)
+				{
+					if(input_valid[i]==1)
+					{
+						count_10ms[i]++;
+						if(count_10ms[i]==TIME_OUTPUT)
+						{
+							flg_2min_come[i] = 1;
+							count_10ms[i] =0;
+						}
+						
+					}
+					else
+					{	
+						count_10ms[i] = 0;
+		
+						if(flg_2min_come[i])
+						{
+						   flg_2min_come[i] = 0;
+						}
+					}
+				}
+		
+		
+				if(flg_2min_come[0]==1||flg_2min_come[1]==1||flg_2min_come[2]==1||flg_2min_come[3]==1||flg_2min_come[4]==1)
+				{
+					min2_output = 1;
+				}
+				else
+				{
+					min2_output = 0;	
+				}
+			
+			}
+
+		break;
 	}
+
 
 	//消音按键按下
 	if(input[6]==0)
 	{
 		for(i=0;i<6;i++)
 		{
+			sub_system_state[i] = 1;
+			output[5] = 0;//关闭输出
 			count_10ms[i] =0;	
 			flg_2min_come[i] = 0;
-			min2_output = 0;
+			min2_output = 0;//关两分钟输出
+			system_state = 3;
 		}
 		
 	}
@@ -318,11 +435,11 @@ void io_handle(void)
         }        
     }
     //-----------------------------      
-     OUT1 = (bit)output[0];
-     OUT2 = (bit)output[1];
-     OUT3 = (bit)output[2];
-     OUT4 = (bit)output[3];
-     OUT5 = (bit)output[4];
+   //  OUT1 = (bit)output[0];
+    // OUT2 = (bit)output[1];
+     //OUT3 = (bit)output[2];
+     //OUT4 = (bit)output[3];
+     //OUT5 = (bit)output[4];
 	 OUT6 = (bit)output[5];
 	 OUT_2MIN = (bit)output[6];
 }

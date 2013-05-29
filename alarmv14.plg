@@ -3,7 +3,75 @@
 <pre>
 <h1>µVision3 Build Log</h1>
 <h2>Project:</h2>
-C:\Documents and Settings\Administrator\×ÀÃæ\³ÌÐòV4\alarm.uv2
-Project File Date:  05/28/2013
+C:\Documents and Settings\Administrator\×ÀÃæ\gsm-arlam\alarm.uv2
+Project File Date:  05/29/2013
 
 <h2>Output:</h2>
+Build target 'Target 1'
+assembling STARTUP.A51...
+compiling main.c...
+compiling time.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SIGN_TIMER?TIME
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?SCHEDULE_TIMER?TIME
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?STOP_ALL_TIMER?TIME
+Program Size: data=107.0 xdata=0 code=1237
+creating hex file from "alarmv14"...
+"alarmv14" - 0 Error(s), 3 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(174): error C202: 'sub_system_state': undefined identifier
+SRC\MAIN.C(184): error C202: 'sub_system_state': undefined identifier
+SRC\MAIN.C(199): error C202: 'sub_system_state': undefined identifier
+SRC\MAIN.C(224): error C187: not an lvalue
+SRC\MAIN.C(264): error C202: 'sub_system_state': undefined identifier
+SRC\MAIN.C(284): error C187: not an lvalue
+SRC\MAIN.C(294): error C187: not an lvalue
+SRC\MAIN.C(306): error C187: not an lvalue
+SRC\MAIN.C(316): error C187: not an lvalue
+SRC\MAIN.C(328): error C187: not an lvalue
+SRC\MAIN.C(338): error C187: not an lvalue
+SRC\MAIN.C(350): error C187: not an lvalue
+SRC\MAIN.C(360): error C187: not an lvalue
+SRC\MAIN.C(372): error C187: not an lvalue
+SRC\MAIN.C(382): error C187: not an lvalue
+SRC\MAIN.C(395): error C187: not an lvalue
+SRC\MAIN.C(405): error C187: not an lvalue
+SRC\MAIN.C(418): error C187: not an lvalue
+SRC\MAIN.C(428): error C187: not an lvalue
+Target not created
+Build target 'Target 1'
+compiling main.c...
+SRC\MAIN.C(117): error C141: syntax error near 'unsigned'
+SRC\MAIN.C(140): error C187: not an lvalue
+SRC\MAIN.C(226): error C187: not an lvalue
+SRC\MAIN.C(286): error C187: not an lvalue
+SRC\MAIN.C(296): error C187: not an lvalue
+SRC\MAIN.C(308): error C187: not an lvalue
+SRC\MAIN.C(318): error C187: not an lvalue
+SRC\MAIN.C(330): error C187: not an lvalue
+SRC\MAIN.C(340): error C187: not an lvalue
+SRC\MAIN.C(352): error C187: not an lvalue
+SRC\MAIN.C(362): error C187: not an lvalue
+SRC\MAIN.C(374): error C187: not an lvalue
+SRC\MAIN.C(384): error C187: not an lvalue
+SRC\MAIN.C(397): error C187: not an lvalue
+SRC\MAIN.C(407): error C187: not an lvalue
+SRC\MAIN.C(420): error C187: not an lvalue
+SRC\MAIN.C(430): error C187: not an lvalue
+Target not created
+Build target 'Target 1'
+compiling main.c...
+linking...
+Program Size: data=80.0 xdata=0 code=1287
+creating hex file from "alarmv14"...
+"alarmv14" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+linking...
+Program Size: data=80.0 xdata=0 code=1257
+creating hex file from "alarmv14"...
+"alarmv14" - 0 Error(s), 0 Warning(s).

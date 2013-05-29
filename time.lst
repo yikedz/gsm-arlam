@@ -1,9 +1,9 @@
-C51 COMPILER V8.02   TIME                                                                  05/06/2013 13:23:29 PAGE 1   
+C51 COMPILER V8.02   TIME                                                                  05/29/2013 20:10:57 PAGE 1   
 
 
 C51 COMPILER V8.02, COMPILATION OF MODULE TIME
 OBJECT MODULE PLACED IN time.obj
-COMPILER INVOKED BY: e:\Keil\C51\BIN\C51.EXE src\time.c BROWSE DEBUG OBJECTEXTEND PRINT(.\time.lst) OBJECT(time.obj)
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE src\time.c BROWSE DEBUG OBJECTEXTEND PRINT(.\time.lst) OBJECT(time.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   53   1              {
   54   2                      if(soft_timer[i].idle ==1)//当前定时器空闲
   55   2                      {
-C51 COMPILER V8.02   TIME                                                                  05/06/2013 13:23:29 PAGE 2   
+C51 COMPILER V8.02   TIME                                                                  05/29/2013 20:10:57 PAGE 2   
 
   56   3                              soft_timer[i].idle = 0;
   57   3                      }
