@@ -14,10 +14,12 @@
 #define TIME_OUTPUT 12000
 #define OUTPUT_FOLLOW 1
 
-#define HIGH 1
-#define LOW 0
+//#define HIGH 1
+#define LOW 1
 
-#define min2_output output[6]
+
+#define OUT_2MIN_DEF  output[6]
+//#define min2_output output[6]
 //输入信号
 sbit IN1 = P3^2;
 sbit IN2 = P3^3;
@@ -41,10 +43,20 @@ sbit OUT_2MIN = P1^6;//2分钟后输出
 
 sbit CLEAR_ALARM = P1^7;//报警解除输入
 
-unsigned char input[7] = {1,1,1,1,1,1,1};//输入缓冲
+//unsigned char input[7] = {1,1,1,1,1,1,1};//输入缓冲
+unsigned char input[7] = {0,0,0,0,0,0,0};//输入缓冲
 unsigned char output[7] = {0,0,0,0,0,0,0};//输出缓冲
 
+unsigned char min2_output = 0;
 unsigned char flg_10ms = 0;
+
+unsigned char flg_10ms2 = 0;
+unsigned char output_state = 1;
+unsigned char output_level = 1;
+static unsigned int output_state_high_count = 0;
+static unsigned int output_state_low_count = 0;
+unsigned char output_pulse_count  = 0;
+
 unsigned long count_10ms[6]={0,0,0,0,0,0};
 unsigned char flg_2min_come[6]={0,0,0,0,0,0};
 
@@ -53,6 +65,7 @@ void init_timer0(void);
 void init_port(void);
 void system_handle(void);
 void io_handle(void);
+void output_2min_handle(void);
 
 unsigned char input_valid[5] = {0,0,0,0,0};
 
@@ -63,9 +76,27 @@ void main(void)
    init_timer0();
    
    EA =1;
+
    while(1)
     {
    	 system_handle();
+
+	 if(flg_10ms2)
+	 {
+	 	 flg_10ms2 = 0;
+
+		if(min2_output)
+		{
+			output_2min_handle();
+		}
+		else
+		{
+			   OUT_2MIN_DEF = 0;
+		}
+
+	 }
+
+
     }
 }
 
@@ -94,6 +125,7 @@ void timer0_int() interrupt 1
 
   TL0 = 0xF0;
   flg_10ms = 1;
+  flg_10ms2 = 1;
   //schedule_timer();
  // time_count_30min();
   io_handle();
@@ -442,5 +474,69 @@ void io_handle(void)
      //OUT5 = (bit)output[4];
 	 OUT6 = (bit)output[5];
 	 OUT_2MIN = (bit)output[6];
+}
+
+
+void output_2min_handle(void)
+{
+	switch(output_state)
+	{
+		case 1://前5个脉冲输出
+			if(output_level)//输出电平高低
+			{
+				OUT_2MIN_DEF = 1;
+				output_state_high_count++;
+				if(output_state_high_count==200)
+				{
+					output_state_high_count = 0;
+					output_level = 0;
+				}
+			}
+			else//(output_level==0)
+			{
+				OUT_2MIN_DEF = 0;
+				output_state_low_count++;
+				if(output_state_low_count==100)
+				{
+					output_state_low_count = 0;
+					output_level = 1;
+					
+					output_pulse_count++;
+					if(output_pulse_count==5)
+					{
+						output_state = 2;
+						output_pulse_count = 0;
+					}					
+				}
+
+			}
+		break;
+		case 2:
+			if(output_level)//输出电平高
+			{
+				OUT_2MIN_DEF = 1;
+				output_state_high_count++;
+				if(output_state_high_count==500)
+				{
+					output_state_high_count = 0;
+					output_level = 0;
+				}
+			}
+			else//(output_level==0)
+			{
+				OUT_2MIN_DEF = 0;
+				output_state_low_count++;
+				if(output_state_low_count==200)
+				{
+					output_state_low_count = 0;
+					output_level = 1;
+					
+					output_state = 1;
+				}
+			}		
+		break;
+		
+	}
+	
 }
 
