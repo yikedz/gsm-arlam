@@ -1,4 +1,4 @@
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 1   
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 1   
 
 
 C51 COMPILER V8.02, COMPILATION OF MODULE MAIN
@@ -7,577 +7,549 @@ COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE src\main.c BROWSE DEBUG OBJECTEXTEN
 
 line level    source
 
-   1          /*
-   2          整理描述 ：
-   3              当输入端输入一个下降沿 低电平保持时间为2秒，
-   4              就会在对应输出端出现一个2秒的高电平，然后该输出端转到低电平。
-   5              若输入端低电平保持时间超过30MIN，
-   6              对应端再输出一次2秒的高电平，周而复始。
-   7          */
-   8          
-   9          #include"STC11.h"
-  10          #include "time.h"
-  11          
-  12          #define HIGH_CON 1
-  13          #define LOW_CON 0
-  14          #define TIME_OUTPUT 12000
-  15          #define OUTPUT_FOLLOW 1
-  16          
-  17          //#define HIGH 1
-  18          #define LOW 1
-  19          
-  20          
-  21          #define OUT_2MIN_DEF  output[6]
-  22          //#define min2_output output[6]
-  23          //输入信号
-  24          sbit IN1 = P3^2;
-  25          sbit IN2 = P3^3;
-  26          sbit IN3 = P3^4;
-  27          sbit IN4 = P3^5;  
-  28          sbit IN5 = P3^7;
-  29          
-  30          sbit IN6 = P3^0;
-  31          sbit OUT6 = P3^1;
-  32          
-  33          sbit low_high_input_select = P1^5;
-  34          
-  35          //输出信号 控制指示灯
-  36          sbit OUT1 = P1^0;
-  37          sbit OUT2 = P1^1;
-  38          sbit OUT3 = P1^2;
-  39          sbit OUT4 = P1^3;
-  40          sbit OUT5 = P1^4;
-  41          
-  42          sbit OUT_2MIN = P1^6;//2分钟后输出
-  43          
-  44          sbit CLEAR_ALARM = P1^7;//报警解除输入
-  45          
-  46          //unsigned char input[7] = {1,1,1,1,1,1,1};//输入缓冲
-  47          unsigned char input[7] = {0,0,0,0,0,0,0};//输入缓冲
-  48          unsigned char output[7] = {0,0,0,0,0,0,0};//输出缓冲
-  49          
-  50          unsigned char min2_output = 0;
-  51          unsigned char flg_10ms = 0;
-  52          
-  53          unsigned char flg_10ms2 = 0;
-  54          unsigned char output_state = 1;
-  55          unsigned char output_level = 1;
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 2   
+   1          #include"STC11.h"
+   2          #include "time.h"
+   3          //-----------------------
+   4          #define TIME_OUTPUT 12000
+   5          #define LOW 1
+   6          #define OUT_2MIN_DEF  output[6]
+   7          //-----------------------
+   8          sbit low_high_input_select = P1^5;
+   9          //-----------------------
+  10          //输入信号
+  11          sbit IN1 = P3^2;
+  12          sbit IN2 = P3^3;
+  13          sbit IN3 = P3^4;
+  14          sbit IN4 = P3^5; 
+  15          sbit IN5 = P3^7;
+  16          sbit IN6 = P3^0;
+  17          //-----------------------
+  18          sbit OUT1 = P1^0;
+  19          sbit OUT2 = P1^1;
+  20          sbit OUT3 = P1^2;
+  21          sbit OUT4 = P1^3;
+  22          sbit OUT5 = P1^4;
+  23          sbit OUT6 = P3^1;
+  24          //----------------------
+  25          sbit OUT_2MIN = P1^6;//2分钟后输出
+  26          sbit CLEAR_ALARM = P1^7;//报警解除输入
+  27          //-----------------------
+  28          unsigned char input[7] = {0,0,0,0,0,0,0};//输入缓冲
+  29          unsigned char output[7] = {0,0,0,0,0,0,0};//输出缓冲
+  30          unsigned char input_valid[5] = {0,0,0,0,0};
+  31          unsigned long count_10ms[6]={0,0,0,0,0,0};
+  32          unsigned char flg_2min_come[6]={0,0,0,0,0,0};
+  33          //-----------------------
+  34          unsigned char min2_output = 0;
+  35          unsigned char flg_10ms = 0;
+  36          unsigned char flg_10ms2 = 0;
+  37          unsigned char output_state = 1;
+  38          unsigned char output_level = 1;
+  39          unsigned int output_state_high_count = 0;
+  40          unsigned int output_state_low_count = 0;
+  41          unsigned char output_pulse_count  = 0;
+  42          //-----------------------
+  43          void init_port(void);
+  44          void init_timer0(void);
+  45          void system_handle(void);
+  46          void io_handle(void);
+  47          void output_2min_handle(void);
+  48          void wait_get_input(void);
+  49          //-----------------------
+  50          void main(void)
+  51          {
+  52   1         init_port();//初始化io口
+  53   1         
+  54   1         init_timer0();
+  55   1         
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 2   
 
-  56          static unsigned int output_state_high_count = 0;
-  57          static unsigned int output_state_low_count = 0;
-  58          unsigned char output_pulse_count  = 0;
-  59          
-  60          unsigned long count_10ms[6]={0,0,0,0,0,0};
-  61          unsigned char flg_2min_come[6]={0,0,0,0,0,0};
-  62          
-  63          
-  64          void init_timer0(void);
-  65          void init_port(void);
-  66          void system_handle(void);
-  67          void io_handle(void);
-  68          void output_2min_handle(void);
-  69          
-  70          unsigned char input_valid[5] = {0,0,0,0,0};
-  71          
-  72          void main(void)
-  73          {
-  74   1         init_port();//初始化io口
-  75   1         
-  76   1         init_timer0();
-  77   1         
-  78   1         EA =1;
-  79   1      
-  80   1         while(1)
-  81   1          {
-  82   2               system_handle();
-  83   2      
-  84   2               if(flg_10ms2)
-  85   2               {
-  86   3                       flg_10ms2 = 0;
-  87   3      
-  88   3                      if(min2_output)
-  89   3                      {
-  90   4                              output_2min_handle();
-  91   4                      }
-  92   3                      else
-  93   3                      {
-  94   4                                 OUT_2MIN_DEF = 0;
-  95   4                      }
-  96   3      
-  97   3               }
-  98   2      
-  99   2      
- 100   2          }
- 101   1      }
- 102          
- 103          
- 104          void init_port(void)
- 105          {
- 106   1              P1M0 = 0x40;
- 107   1              P1M1 = 0;
- 108   1      
- 109   1              OUT1 = 0;
- 110   1              OUT2 = 0;
- 111   1              OUT3 = 0;
- 112   1              OUT4 = 0;
- 113   1              OUT5 = 0;
- 114   1              OUT6 = 0;
- 115   1              OUT_2MIN = 0;
- 116   1              //sign_timer(12000,delay_ouput,1);
- 117   1              //while(1);
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 3   
+  56   1         EA =1;
+  57   1      
+  58   1         wait_get_input();//等待获取输入信号
+  59   1      
+  60   1         while(1)
+  61   1          {
+  62   2                       system_handle();
+  63   2                       output_2min_handle();
+  64   2          }
+  65   1      }
+  66          
+  67          void init_port(void)
+  68          {
+  69   1              P1M0 = 0x40;
+  70   1              P1M1 = 0;
+  71   1              OUT1 = 0;
+  72   1              OUT2 = 0;
+  73   1              OUT3 = 0;
+  74   1              OUT4 = 0;
+  75   1              OUT5 = 0;
+  76   1              OUT6 = 0;
+  77   1              OUT_2MIN = 0;
+  78   1      }
+  79          
+  80          void timer0_int() interrupt 1
+  81          {
+  82   1        //12M 10MS
+  83   1        TH0 = 0xD8;
+  84   1        TL0 = 0xF0;
+  85   1        flg_10ms = 1;
+  86   1        flg_10ms2 = 1;
+  87   1        //schedule_timer();
+  88   1        //time_count_30min();
+  89   1        io_handle();
+  90   1       
+  91   1       }
+  92          void init_timer0(void)
+  93          {
+  94   1              TMOD |= 0X01;
+  95   1              TH0 = 0xD8;
+  96   1              TL0 = 0xF0;
+  97   1              ET0 = 1;
+  98   1              TR0 = 1;
+  99   1      }
+ 100          
+ 101          //信号处理程序
+ 102          void system_handle(void)
+ 103          {                                                                                       
+ 104   1              static unsigned char system_state = 1;
+ 105   1      
+ 106   1              static unsigned char  sub_system_state[5]={1,1,1,1,1};
+ 107   1              
+ 108   1              unsigned char i =0;
+ 109   1              
+ 110   1              if(flg_10ms)
+ 111   1              {
+ 112   2                      flg_10ms = 0;//须在此清零
+ 113   2                      switch(system_state)
+ 114   2                      {
+ 115   3                              case 1:
+ 116   3                              //P2 = system_state;
+ 117   3                                      //控制输出端输出
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 3   
 
- 118   1      
- 119   1      }
- 120          
- 121          void timer0_int() interrupt 1
- 122          {
- 123   1        //12M 10MS
- 124   1        TH0 = 0xD8;
- 125   1      
- 126   1        TL0 = 0xF0;
- 127   1        flg_10ms = 1;
- 128   1        flg_10ms2 = 1;
- 129   1        //schedule_timer();
- 130   1       // time_count_30min();
- 131   1        io_handle();
- 132   1       
- 133   1       }
- 134          void init_timer0(void)
- 135          {
- 136   1              TMOD |= 0X01;
- 137   1              TH0 = 0xD8;
- 138   1              TL0 = 0xF0;
- 139   1              ET0 = 1;
- 140   1              TR0 = 1;
- 141   1      }
- 142          
- 143          //信号处理程序
- 144          void system_handle(void)
- 145          {
- 146   1              static unsigned char system_state = 1;
- 147   1      
- 148   1              static unsigned char  sub_system_state[5]={1,1,1,1,1};
- 149   1              unsigned char i =0;
- 150   1              switch(system_state)
- 151   1              {
- 152   2                      case 1:
- 153   2                              //输入 输出 对应通道处理
- 154   2                              if(flg_10ms)//10ms置位一次
- 155   2                              {
- 156   3                                      flg_10ms = 0;//须在此清零
- 157   3                      
- 158   3                                      //控制输出端输出
- 159   3                                      if((input[0]==LOW)||(input[1]==LOW)||(input[2]==LOW)||(input[3]==LOW)||(input[4]==LOW))
- 160   3                                      {       
- 161   4                                              output[5] = 1;
- 162   4                                      }
- 163   3                                      else
- 164   3                                      {
- 165   4                                              output[5] = 0;
- 166   4                                      }
- 167   3                                      //2min延时
- 168   3                                      for(i=0;i<5;i++)
- 169   3                                      {
- 170   4                                              if(input[i]==LOW)
- 171   4                                              {
- 172   5                                                      count_10ms[i]++;
- 173   5                                                      if(count_10ms[i]==TIME_OUTPUT)
- 174   5                                                      {
- 175   6                                                              flg_2min_come[i] = 1;
- 176   6                                                              count_10ms[i] =0;
- 177   6                                                      }
- 178   5                                                      
- 179   5                                              }
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 4   
-
- 180   4                                              else
- 181   4                                              {       
- 182   5                                                      count_10ms[i] = 0;
- 183   5                      
- 184   5                                                      if(flg_2min_come[i])
- 185   5                                                      {
- 186   6                                                         flg_2min_come[i] = 0;
- 187   6                                                      }
- 188   5                                              }
- 189   4                                      }
- 190   3                      
- 191   3                      
- 192   3                                      if(flg_2min_come[0]==1||flg_2min_come[1]==1||flg_2min_come[2]==1||flg_2min_come[3]==1||flg_2min_come[4
+ 118   3                                      if((input[0]==LOW)||(input[1]==LOW)||(input[2]==LOW)||(input[3]==LOW)||(input[4]==LOW))
+ 119   3                                      {       
+ 120   4                                              output[5] = 1;
+ 121   4                                      }
+ 122   3                                      else
+ 123   3                                      {
+ 124   4                                              output[5] = 0;
+ 125   4                                      }
+ 126   3                                      //2min延时
+ 127   3                                      for(i=0;i<5;i++)
+ 128   3                                      {
+ 129   4                                              if(input[i]==LOW)
+ 130   4                                              {
+ 131   5                                                      count_10ms[i]++;
+ 132   5                                                      if(count_10ms[i]==TIME_OUTPUT)
+ 133   5                                                      {
+ 134   6                                                              flg_2min_come[i] = 1;
+ 135   6                                                              count_10ms[i] =0;
+ 136   6                                                      }       
+ 137   5                                              }
+ 138   4                                              else
+ 139   4                                              {       
+ 140   5                                                      count_10ms[i] = 0;
+ 141   5                                                      if(flg_2min_come[i])
+ 142   5                                                      {
+ 143   6                                                         flg_2min_come[i] = 0;
+ 144   6                                                      }
+ 145   5                                              }
+ 146   4                                      }
+ 147   3      
+ 148   3                                      if(flg_2min_come[0]==1||flg_2min_come[1]==1||flg_2min_come[2]==1||flg_2min_come[3]==1||flg_2min_come[4
              -]==1)
- 193   3                                      {
- 194   4                                              min2_output = 1;
- 195   4                                      }
- 196   3                                      else
- 197   3                                      {
- 198   4                                              min2_output = 0;        
- 199   4                                      }
- 200   3                              
- 201   3                              }
- 202   2                      break;
- 203   2                      case 2:
- 204   2                      break;
- 205   2                      case 3:
- 206   2                      for(i=0;i<5;i++)
- 207   2                      {
- 208   3                              switch(sub_system_state[i])
- 209   3                              {
- 210   4                                      case 1:
- 211   4                                              if(input[i]==LOW)//没有释放
- 212   4                                              {
- 213   5                                                      input_valid[i] = 0;             
- 214   5                                              }
- 215   4                                              else
- 216   4                                              {
- 217   5                                                      input_valid[i] = 0;     
- 218   5                                                      sub_system_state[i] = 2;
- 219   5                                              }
- 220   4                                      break;
- 221   4                                      case 2:
- 222   4                                              if(input[i]==LOW)
- 223   4                                              {
- 224   5                                                      input_valid[i] = 1;     
- 225   5                                              }
- 226   4                                              else
- 227   4                                              {
- 228   5                                                      input_valid[i] = 0;
- 229   5                                              }
- 230   4                                                 //enable_output[i] = 1;
- 231   4                                      break;
- 232   4                                      default:
- 233   4                                              sub_system_state[i] = 1;
- 234   4                                      break;
- 235   4                              }                       
- 236   3                      }
- 237   2      
- 238   2      
- 239   2                              //输入 输出 对应通道处理
- 240   2                              if(flg_10ms)//10ms置位一次
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 5   
+ 149   3                                      {
+ 150   4                                              min2_output = 1;
+ 151   4                                      }
+ 152   3                                      else
+ 153   3                                      {
+ 154   4                                              min2_output = 0;        
+ 155   4                                      }
+ 156   3                              break;
+ 157   3                              case 2:
+ 158   3                              break;
+ 159   3                              case 3:
+ 160   3                              //P2 = system_state;
+ 161   3                              for(i=0;i<5;i++)
+ 162   3                              {
+ 163   4                                      switch(sub_system_state[i])
+ 164   4                                      {
+ 165   5                                              case 1:
+ 166   5                                                      if(input[i]==LOW)//没有释放
+ 167   5                                                      {
+ 168   6                                                              input_valid[i] = 0;             
+ 169   6                                                      }
+ 170   5                                                      else
+ 171   5                                                      {
+ 172   6                                                              input_valid[i] = 0;     
+ 173   6                                                              sub_system_state[i] = 2;
+ 174   6                                                      }
+ 175   5                                              break;
+ 176   5                                              case 2:
+ 177   5                                                      if(input[i]==LOW)
+ 178   5                                                      {
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 4   
 
- 241   2                              {
- 242   3                                      flg_10ms = 0;//须在此清零
- 243   3                      
- 244   3                                      //控制输出端输出
- 245   3                                      if((input_valid[0]==1)||(input_valid[1]==1)||(input_valid[2]==1)||(input_valid[3]==1)||(input_valid[4]
-             -==1))
- 246   3                                      {       
- 247   4                                              output[5] = 1;
- 248   4                                      }
- 249   3                                      else
- 250   3                                      {
- 251   4                                              output[5] = 0;
- 252   4                                      }
- 253   3                                      //2min延时
- 254   3                                      for(i=0;i<5;i++)
- 255   3                                      {
- 256   4                                              if(input_valid[i]==1)
- 257   4                                              {
- 258   5                                                      count_10ms[i]++;
- 259   5                                                      if(count_10ms[i]==TIME_OUTPUT)
- 260   5                                                      {
- 261   6                                                              flg_2min_come[i] = 1;
- 262   6                                                              count_10ms[i] =0;
- 263   6                                                      }
- 264   5                                                      
- 265   5                                              }
- 266   4                                              else
- 267   4                                              {       
- 268   5                                                      count_10ms[i] = 0;
- 269   5                      
- 270   5                                                      if(flg_2min_come[i])
- 271   5                                                      {
- 272   6                                                         flg_2min_come[i] = 0;
- 273   6                                                      }
- 274   5                                              }
- 275   4                                      }
- 276   3                      
- 277   3                      
- 278   3                                      if(flg_2min_come[0]==1||flg_2min_come[1]==1||flg_2min_come[2]==1||flg_2min_come[3]==1||flg_2min_come[4
-             -]==1)
- 279   3                                      {
- 280   4                                              min2_output = 1;
- 281   4                                      }
- 282   3                                      else
- 283   3                                      {
- 284   4                                              min2_output = 0;        
- 285   4                                      }
- 286   3                              
- 287   3                              }
- 288   2      
- 289   2                      break;
- 290   2              }
- 291   1      
- 292   1      
- 293   1              //消音按键按下
- 294   1              if(input[6]==0)
- 295   1              {
- 296   2                      for(i=0;i<6;i++)
- 297   2                      {
- 298   3                              sub_system_state[i] = 1;
- 299   3                              output[5] = 0;//关闭输出
- 300   3                              count_10ms[i] =0;       
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 6   
+ 179   6                                                              input_valid[i] = 1;     
+ 180   6                                                      }
+ 181   5                                                      else
+ 182   5                                                      {
+ 183   6                                                              input_valid[i] = 0;
+ 184   6                                                      }
+ 185   5                                                         //enable_output[i] = 1;
+ 186   5                                              break;
+ 187   5                                              default:
+ 188   5                                                      sub_system_state[i] = 1;
+ 189   5                                              break;
+ 190   5                                      }                       
+ 191   4                              }
+ 192   3      
+ 193   3                              //控制输出端输出
+ 194   3                              if((input_valid[0]==1)||(input_valid[1]==1)||(input_valid[2]==1)||(input_valid[3]==1)||(input_valid[4]=
+             -=1))
+ 195   3                              {       
+ 196   4                                      output[5] = 1;
+ 197   4                              }
+ 198   3                              else
+ 199   3                              {
+ 200   4                                      output[5] = 0;
+ 201   4                              }
+ 202   3                              //2min延时
+ 203   3                              for(i=0;i<5;i++)
+ 204   3                              {
+ 205   4                                      if(input_valid[i]==1)
+ 206   4                                      {
+ 207   5                                              count_10ms[i]++;
+ 208   5                                              if(count_10ms[i]==TIME_OUTPUT)
+ 209   5                                              {
+ 210   6                                                      flg_2min_come[i] = 1;
+ 211   6                                                      count_10ms[i] =0;
+ 212   6                                              }
+ 213   5                                                              
+ 214   5                                      }
+ 215   4                                      else
+ 216   4                                      {       
+ 217   5                                              count_10ms[i] = 0;
+ 218   5                              
+ 219   5                                              if(flg_2min_come[i])
+ 220   5                                              {
+ 221   6                                                 flg_2min_come[i] = 0;
+ 222   6                                              }
+ 223   5                                      }
+ 224   4                              }
+ 225   3      
+ 226   3                              if(flg_2min_come[0]==1||flg_2min_come[1]==1||flg_2min_come[2]==1||flg_2min_come[3]==1||flg_2min_come[4]
+             -==1)
+ 227   3                              {
+ 228   4                                      min2_output = 1;
+ 229   4                              }
+ 230   3                              else
+ 231   3                              {
+ 232   4                                      min2_output = 0;        
+ 233   4                              }
+ 234   3                              break;
+ 235   3                              
+ 236   3                              default:
+ 237   3                                      system_state = 1; 
+ 238   3                              break;
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 5   
 
- 301   3                              flg_2min_come[i] = 0;
- 302   3                              min2_output = 0;//关两分钟输出
- 303   3                              system_state = 3;
- 304   3                      }
- 305   2                      
- 306   2              }
- 307   1      }
- 308          
- 309          void io_handle(void)
- 310          {
- 311   1          static unsigned char low_count[7];
- 312   1          static unsigned char high_count[7];
- 313   1          //-----------------------------
- 314   1          IN1 = 1;    
- 315   1          if(IN1==1)
- 316   1          {
- 317   2             low_count[0] = 0;
- 318   2             high_count[0]++;
- 319   2             if(high_count[0]==10)
- 320   2              {
- 321   3                 input[0] = 1; 
- 322   3                 high_count[0] = 0;
- 323   3              }
- 324   2          }
- 325   1          else
- 326   1          {
- 327   2             high_count[0] = 0;
- 328   2             low_count[0]++;
- 329   2             if(low_count[0]==10)
- 330   2              {
- 331   3                 input[0] = 0; 
- 332   3                 low_count[0] = 0;
- 333   3              }        
- 334   2          }
- 335   1          //-----------------------------   
- 336   1          IN2 = 1;    
- 337   1          if(IN2==1)
- 338   1          {
- 339   2             low_count[1] = 0;
- 340   2             high_count[1]++;
- 341   2             if(high_count[1]==10)
- 342   2              {
- 343   3                 input[1] = 1; 
- 344   3                 high_count[1] = 0;
- 345   3              }
- 346   2          }
- 347   1          else
- 348   1          {
- 349   2             high_count[1] = 0;
- 350   2             low_count[1]++;
- 351   2             if(low_count[1]==10)
- 352   2              {
- 353   3                 input[1] = 0; 
- 354   3                 low_count[1] = 0;
- 355   3              }        
- 356   2          }
- 357   1          //-----------------------------  
- 358   1          IN3 = 1;    
- 359   1          if(IN3==1)
- 360   1          {
- 361   2             low_count[2] = 0;
- 362   2             high_count[2]++;
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 7   
+ 239   3                      }
+ 240   2                      
+ 241   2              }
+ 242   1              //消音按键按下
+ 243   1              if(input[6]==0)
+ 244   1              {
+ 245   2                      for(i=0;i<6;i++)
+ 246   2                      {
+ 247   3                              sub_system_state[i] = 1;
+ 248   3                              output[5] = 0;//关闭输出
+ 249   3                              count_10ms[i] =0;       
+ 250   3                              flg_2min_come[i] = 0;
+ 251   3                              min2_output = 0;//关两分钟输出
+ 252   3                              system_state = 3;
+ 253   3                      }
+ 254   2                      
+ 255   2              }
+ 256   1      }
+ 257          
+ 258          void io_handle(void)
+ 259          {
+ 260   1          static unsigned char low_count[7];
+ 261   1          static unsigned char high_count[7];
+ 262   1          //-----------------------------
+ 263   1          IN1 = 1;    
+ 264   1          if(IN1==1)
+ 265   1          {
+ 266   2             low_count[0] = 0;
+ 267   2             high_count[0]++;
+ 268   2             if(high_count[0]==10)
+ 269   2              {
+ 270   3                 input[0] = 1; 
+ 271   3                 high_count[0] = 0;
+ 272   3              }
+ 273   2          }
+ 274   1          else
+ 275   1          {
+ 276   2             high_count[0] = 0;
+ 277   2             low_count[0]++;
+ 278   2             if(low_count[0]==10)
+ 279   2              {
+ 280   3                 input[0] = 0; 
+ 281   3                 low_count[0] = 0;
+ 282   3              }        
+ 283   2          }
+ 284   1          //-----------------------------   
+ 285   1          IN2 = 1;    
+ 286   1          if(IN2==1)
+ 287   1          {
+ 288   2             low_count[1] = 0;
+ 289   2             high_count[1]++;
+ 290   2             if(high_count[1]==10)
+ 291   2              {
+ 292   3                 input[1] = 1; 
+ 293   3                 high_count[1] = 0;
+ 294   3              }
+ 295   2          }
+ 296   1          else
+ 297   1          {
+ 298   2             high_count[1] = 0;
+ 299   2             low_count[1]++;
+ 300   2             if(low_count[1]==10)
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 6   
 
- 363   2             if(high_count[2]==10)
- 364   2              {
- 365   3                 input[2] = 1; 
- 366   3                 high_count[2] = 0;
- 367   3              }
- 368   2          }
- 369   1          else
- 370   1          {
- 371   2             high_count[2] = 0;
- 372   2             low_count[2]++;
- 373   2             if(low_count[2]==10)
- 374   2              {
- 375   3                 input[2] = 0; 
- 376   3                 low_count[2] = 0;
- 377   3              }        
- 378   2          }
- 379   1          //-----------------------------  
- 380   1          IN4= 1;    
- 381   1          if(IN4==1)
- 382   1          {
- 383   2             low_count[3] = 0;
- 384   2             high_count[3]++;
- 385   2             if(high_count[3]==10)
- 386   2              {
- 387   3                 input[3] = 1; 
- 388   3                 high_count[3] = 0;
- 389   3              }
- 390   2          }
- 391   1          else
- 392   1          {
- 393   2             high_count[3] = 0;
- 394   2             low_count[3]++;
- 395   2             if(low_count[3]==10)
- 396   2              {
- 397   3                 input[3] = 0; 
- 398   3                 low_count[3] = 0;
- 399   3              }        
- 400   2          }
- 401   1          //-----------------------------
- 402   1          IN5 = 1;    
- 403   1          if(IN5==1)
- 404   1          {
- 405   2             low_count[4] = 0;
- 406   2             high_count[4]++;
- 407   2             if(high_count[4]==10)
- 408   2              {
- 409   3                 input[4] = 1; 
- 410   3                 high_count[4] = 0;
- 411   3              }
- 412   2          }
- 413   1          else
- 414   1          {
- 415   2             high_count[4] = 0;
- 416   2             low_count[4]++;
- 417   2             if(low_count[4]==10)
- 418   2              {
- 419   3                 input[4] = 0; 
- 420   3                 low_count[4] = 0;
- 421   3              }        
- 422   2          }
- 423   1          //-----------------------------
- 424   1      
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 8   
+ 301   2              {
+ 302   3                 input[1] = 0; 
+ 303   3                 low_count[1] = 0;
+ 304   3              }        
+ 305   2          }
+ 306   1          //-----------------------------  
+ 307   1          IN3 = 1;    
+ 308   1          if(IN3==1)
+ 309   1          {
+ 310   2             low_count[2] = 0;
+ 311   2             high_count[2]++;
+ 312   2             if(high_count[2]==10)
+ 313   2              {
+ 314   3                 input[2] = 1; 
+ 315   3                 high_count[2] = 0;
+ 316   3              }
+ 317   2          }
+ 318   1          else
+ 319   1          {
+ 320   2             high_count[2] = 0;
+ 321   2             low_count[2]++;
+ 322   2             if(low_count[2]==10)
+ 323   2              {
+ 324   3                 input[2] = 0; 
+ 325   3                 low_count[2] = 0;
+ 326   3              }        
+ 327   2          }
+ 328   1          //-----------------------------  
+ 329   1          IN4= 1;    
+ 330   1          if(IN4==1)
+ 331   1          {
+ 332   2             low_count[3] = 0;
+ 333   2             high_count[3]++;
+ 334   2             if(high_count[3]==10)
+ 335   2              {
+ 336   3                 input[3] = 1; 
+ 337   3                 high_count[3] = 0;
+ 338   3              }
+ 339   2          }
+ 340   1          else
+ 341   1          {
+ 342   2             high_count[3] = 0;
+ 343   2             low_count[3]++;
+ 344   2             if(low_count[3]==10)
+ 345   2              {
+ 346   3                 input[3] = 0; 
+ 347   3                 low_count[3] = 0;
+ 348   3              }        
+ 349   2          }
+ 350   1          //-----------------------------
+ 351   1          IN5 = 1;    
+ 352   1          if(IN5==1)
+ 353   1          {
+ 354   2             low_count[4] = 0;
+ 355   2             high_count[4]++;
+ 356   2             if(high_count[4]==10)
+ 357   2              {
+ 358   3                 input[4] = 1; 
+ 359   3                 high_count[4] = 0;
+ 360   3              }
+ 361   2          }
+ 362   1          else
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 7   
 
- 425   1          IN6 = 1;    
- 426   1          if(IN6==1)
- 427   1          {
- 428   2             low_count[5] = 0;
- 429   2             high_count[5]++;
- 430   2             if(high_count[5]==10)
- 431   2              {
- 432   3                 input[5] = 1; 
- 433   3                 high_count[5] = 0;
- 434   3              }
- 435   2          }
- 436   1          else
- 437   1          {
- 438   2             high_count[5] = 0;
- 439   2             low_count[5]++;
- 440   2             if(low_count[5]==10)
- 441   2              {
- 442   3                 input[5] = 0; 
- 443   3                 low_count[5] = 0;
- 444   3              }        
- 445   2          }
- 446   1          //-----------------------------
- 447   1      
- 448   1              CLEAR_ALARM = 1;
- 449   1              if(CLEAR_ALARM==1)
- 450   1          {
- 451   2             low_count[6] = 0;
- 452   2             high_count[6]++;
- 453   2             if(high_count[6]==10)
- 454   2              {
- 455   3                 input[6] = 1; 
- 456   3                 high_count[6] = 0;
- 457   3              }
- 458   2          }
- 459   1          else
- 460   1          {
- 461   2             high_count[6] = 0;
- 462   2             low_count[6]++;
- 463   2             if(low_count[6]==10)
- 464   2              {
- 465   3                 input[6] = 0; 
- 466   3                 low_count[6] = 0;
- 467   3              }        
- 468   2          }
- 469   1          //-----------------------------      
- 470   1         //  OUT1 = (bit)output[0];
- 471   1          // OUT2 = (bit)output[1];
- 472   1           //OUT3 = (bit)output[2];
- 473   1           //OUT4 = (bit)output[3];
- 474   1           //OUT5 = (bit)output[4];
- 475   1               OUT6 = (bit)output[5];
- 476   1               OUT_2MIN = (bit)output[6];
- 477   1      }
- 478          
- 479          
- 480          void output_2min_handle(void)
- 481          {
- 482   1              switch(output_state)
- 483   1              {
- 484   2                      case 1://前5个脉冲输出
- 485   2                              if(output_level)//输出电平高低
- 486   2                              {
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 9   
+ 363   1          {
+ 364   2             high_count[4] = 0;
+ 365   2             low_count[4]++;
+ 366   2             if(low_count[4]==10)
+ 367   2              {
+ 368   3                 input[4] = 0; 
+ 369   3                 low_count[4] = 0;
+ 370   3              }        
+ 371   2          }
+ 372   1          //-----------------------------
+ 373   1      
+ 374   1          IN6 = 1;    
+ 375   1          if(IN6==1)
+ 376   1          {
+ 377   2             low_count[5] = 0;
+ 378   2             high_count[5]++;
+ 379   2             if(high_count[5]==10)
+ 380   2              {
+ 381   3                 input[5] = 1; 
+ 382   3                 high_count[5] = 0;
+ 383   3              }
+ 384   2          }
+ 385   1          else
+ 386   1          {
+ 387   2             high_count[5] = 0;
+ 388   2             low_count[5]++;
+ 389   2             if(low_count[5]==10)
+ 390   2              {
+ 391   3                 input[5] = 0; 
+ 392   3                 low_count[5] = 0;
+ 393   3              }        
+ 394   2          }
+ 395   1          //-----------------------------
+ 396   1      
+ 397   1              CLEAR_ALARM = 1;
+ 398   1              if(CLEAR_ALARM==1)
+ 399   1          {
+ 400   2             low_count[6] = 0;
+ 401   2             high_count[6]++;
+ 402   2             if(high_count[6]==10)
+ 403   2              {
+ 404   3                 input[6] = 1; 
+ 405   3                 high_count[6] = 0;
+ 406   3              }
+ 407   2          }
+ 408   1          else
+ 409   1          {
+ 410   2             high_count[6] = 0;
+ 411   2             low_count[6]++;
+ 412   2             if(low_count[6]==10)
+ 413   2              {
+ 414   3                 input[6] = 0; 
+ 415   3                 low_count[6] = 0;
+ 416   3              }        
+ 417   2          }
+ 418   1          //-----------------------------      
+ 419   1         //  OUT1 = (bit)output[0];
+ 420   1          // OUT2 = (bit)output[1];
+ 421   1           //OUT3 = (bit)output[2];
+ 422   1           //OUT4 = (bit)output[3];
+ 423   1           //OUT5 = (bit)output[4];
+ 424   1               OUT6 = (bit)output[5];
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 8   
 
- 487   3                                      OUT_2MIN_DEF = 1;
- 488   3                                      output_state_high_count++;
- 489   3                                      if(output_state_high_count==200)
- 490   3                                      {
- 491   4                                              output_state_high_count = 0;
- 492   4                                              output_level = 0;
- 493   4                                      }
+ 425   1               OUT_2MIN = (bit)output[6];
+ 426   1      }
+ 427          
+ 428          void output_2min_handle(void)
+ 429          {
+ 430   1                       if(flg_10ms2)
+ 431   1                       {
+ 432   2                               flg_10ms2 = 0;
+ 433   2      
+ 434   2                              if(min2_output)
+ 435   2                              {
+ 436   3                                      switch(output_state)
+ 437   3                                      {
+ 438   4                                              case 1://前5个脉冲输出
+ 439   4                                                      if(output_level)//输出电平高低
+ 440   4                                                      {
+ 441   5                                                              OUT_2MIN_DEF = 1;
+ 442   5                                                              output_state_high_count++;
+ 443   5                                                              if(output_state_high_count==200)
+ 444   5                                                              {
+ 445   6                                                                      output_state_high_count = 0;
+ 446   6                                                                      output_level = 0;
+ 447   6                                                              }
+ 448   5                                                      }
+ 449   4                                                      else//(output_level==0)
+ 450   4                                                      {
+ 451   5                                                              OUT_2MIN_DEF = 0;
+ 452   5                                                              output_state_low_count++;
+ 453   5                                                              if(output_state_low_count==100)
+ 454   5                                                              {
+ 455   6                                                                      output_state_low_count = 0;
+ 456   6                                                                      output_level = 1;
+ 457   6                                                                      
+ 458   6                                                                      output_pulse_count++;
+ 459   6                                                                      if(output_pulse_count==5)
+ 460   6                                                                      {
+ 461   7                                                                              output_state = 2;
+ 462   7                                                                              output_pulse_count = 0;
+ 463   7                                                                      }                                       
+ 464   6                                                              }
+ 465   5      
+ 466   5                                                      }
+ 467   4                                              break;
+ 468   4                                              case 2:
+ 469   4                                                      if(output_level)//输出电平高
+ 470   4                                                      {
+ 471   5                                                              OUT_2MIN_DEF = 1;
+ 472   5                                                              output_state_high_count++;
+ 473   5                                                              if(output_state_high_count==500)
+ 474   5                                                              {
+ 475   6                                                                      output_state_high_count = 0;
+ 476   6                                                                      output_level = 0;
+ 477   6                                                              }
+ 478   5                                                      }
+ 479   4                                                      else//(output_level==0)
+ 480   4                                                      {
+ 481   5                                                              OUT_2MIN_DEF = 0;
+ 482   5                                                              output_state_low_count++;
+ 483   5                                                              if(output_state_low_count==200)
+ 484   5                                                              {
+ 485   6                                                                      output_state_low_count = 0;
+ 486   6                                                                      output_level = 1;
+C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 9   
+
+ 487   6                                                                      
+ 488   6                                                                      output_state = 1;
+ 489   6                                                              }
+ 490   5                                                      }               
+ 491   4                                              break;
+ 492   4                                              
+ 493   4                                      }                       
  494   3                              }
- 495   2                              else//(output_level==0)
+ 495   2                              else
  496   2                              {
- 497   3                                      OUT_2MIN_DEF = 0;
- 498   3                                      output_state_low_count++;
- 499   3                                      if(output_state_low_count==100)
- 500   3                                      {
- 501   4                                              output_state_low_count = 0;
- 502   4                                              output_level = 1;
- 503   4                                              
- 504   4                                              output_pulse_count++;
- 505   4                                              if(output_pulse_count==5)
- 506   4                                              {
- 507   5                                                      output_state = 2;
- 508   5                                                      output_pulse_count = 0;
- 509   5                                              }                                       
- 510   4                                      }
- 511   3      
- 512   3                              }
- 513   2                      break;
- 514   2                      case 2:
- 515   2                              if(output_level)//输出电平高
- 516   2                              {
- 517   3                                      OUT_2MIN_DEF = 1;
- 518   3                                      output_state_high_count++;
- 519   3                                      if(output_state_high_count==500)
- 520   3                                      {
- 521   4                                              output_state_high_count = 0;
- 522   4                                              output_level = 0;
- 523   4                                      }
- 524   3                              }
- 525   2                              else//(output_level==0)
- 526   2                              {
- 527   3                                      OUT_2MIN_DEF = 0;
- 528   3                                      output_state_low_count++;
- 529   3                                      if(output_state_low_count==200)
- 530   3                                      {
- 531   4                                              output_state_low_count = 0;
- 532   4                                              output_level = 1;
- 533   4                                              
- 534   4                                              output_state = 1;
- 535   4                                      }
- 536   3                              }               
- 537   2                      break;
- 538   2                      
- 539   2              }
- 540   1              
- 541   1      }
- 542          
+ 497   3                                         OUT_2MIN_DEF = 0;
+ 498   3                              }
+ 499   2                       }
+ 500   1      }
+ 501          void wait_get_input(void)
+ 502          {
+ 503   1              static unsigned char wait_time = 20;
+ 504   1              
+ 505   1              while(wait_time)
+ 506   1              {
+ 507   2                      if(flg_10ms)
+ 508   2                      {
+ 509   3                              flg_10ms = 0;
+ 510   3                              wait_time--;
+ 511   3                      }
+ 512   2              }
+ 513   1      
+ 514   1      }
+ 515          
+ 516          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1136    ----
+   CODE SIZE        =   1161    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 10:38:03 PAGE 10  
-
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     79       1
+   DATA SIZE        =     80       1
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
