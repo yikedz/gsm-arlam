@@ -1,9 +1,9 @@
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 1   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 1   
 
 
 C51 COMPILER V8.02, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN main.obj
-COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE src\main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\main.lst) OBJECT(main.obj)
+COMPILER INVOKED BY: e:\Keil\C51\BIN\C51.EXE src\main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\main.lst) OBJECT(main.obj)
 
 line level    source
 
@@ -11,7 +11,7 @@ line level    source
    2          #include "time.h"
    3          //-----------------------
    4          #define TIME_OUTPUT 12000
-   5          #define LOW 1
+   5          #define LOW 0
    6          #define OUT_2MIN_DEF  output[6]
    7          //-----------------------
    8          sbit low_high_input_select = P1^5;
@@ -62,7 +62,7 @@ line level    source
   53   1         
   54   1         init_timer0();
   55   1         
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 2   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 2   
 
   56   1         EA =1;
   57   1      
@@ -126,7 +126,7 @@ line level    source
  115   3                              case 1:
  116   3                              //P2 = system_state;
  117   3                                      //¿ØÖÆÊä³ö¶ËÊä³ö
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 3   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 3   
 
  118   3                                      if((input[0]==LOW)||(input[1]==LOW)||(input[2]==LOW)||(input[3]==LOW)||(input[4]==LOW))
  119   3                                      {       
@@ -190,7 +190,7 @@ line level    source
  176   5                                              case 2:
  177   5                                                      if(input[i]==LOW)
  178   5                                                      {
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 4   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 4   
 
  179   6                                                              input_valid[i] = 1;     
  180   6                                                      }
@@ -254,7 +254,7 @@ line level    source
  236   3                              default:
  237   3                                      system_state = 1; 
  238   3                              break;
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 5   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 5   
 
  239   3                      }
  240   2                      
@@ -318,7 +318,7 @@ line level    source
  298   2             high_count[1] = 0;
  299   2             low_count[1]++;
  300   2             if(low_count[1]==10)
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 6   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 6   
 
  301   2              {
  302   3                 input[1] = 0; 
@@ -382,7 +382,7 @@ line level    source
  360   3              }
  361   2          }
  362   1          else
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 7   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 7   
 
  363   1          {
  364   2             high_count[4] = 0;
@@ -446,7 +446,7 @@ line level    source
  422   1           //OUT4 = (bit)output[3];
  423   1           //OUT5 = (bit)output[4];
  424   1               OUT6 = (bit)output[5];
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 8   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 8   
 
  425   1               OUT_2MIN = (bit)output[6];
  426   1      }
@@ -466,7 +466,7 @@ line level    source
  440   4                                                      {
  441   5                                                              OUT_2MIN_DEF = 1;
  442   5                                                              output_state_high_count++;
- 443   5                                                              if(output_state_high_count==200)
+ 443   5                                                              if(output_state_high_count==100)
  444   5                                                              {
  445   6                                                                      output_state_high_count = 0;
  446   6                                                                      output_level = 0;
@@ -482,7 +482,7 @@ line level    source
  456   6                                                                      output_level = 1;
  457   6                                                                      
  458   6                                                                      output_pulse_count++;
- 459   6                                                                      if(output_pulse_count==5)
+ 459   6                                                                      if(output_pulse_count==7)
  460   6                                                                      {
  461   7                                                                              output_state = 2;
  462   7                                                                              output_pulse_count = 0;
@@ -506,11 +506,11 @@ line level    source
  480   4                                                      {
  481   5                                                              OUT_2MIN_DEF = 0;
  482   5                                                              output_state_low_count++;
- 483   5                                                              if(output_state_low_count==200)
+ 483   5                                                              if(output_state_low_count==100)
  484   5                                                              {
  485   6                                                                      output_state_low_count = 0;
  486   6                                                                      output_level = 1;
-C51 COMPILER V8.02   MAIN                                                                  06/02/2013 20:47:35 PAGE 9   
+C51 COMPILER V8.02   MAIN                                                                  06/04/2013 08:28:57 PAGE 9   
 
  487   6                                                                      
  488   6                                                                      output_state = 1;
@@ -545,7 +545,7 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1161    ----
+   CODE SIZE        =   1148    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

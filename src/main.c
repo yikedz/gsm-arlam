@@ -2,7 +2,7 @@
 #include "time.h"
 //-----------------------
 #define TIME_OUTPUT 12000
-#define LOW 1
+#define LOW 0
 #define OUT_2MIN_DEF  output[6]
 //-----------------------
 sbit low_high_input_select = P1^5;
@@ -440,7 +440,7 @@ void output_2min_handle(void)
 						{
 							OUT_2MIN_DEF = 1;
 							output_state_high_count++;
-							if(output_state_high_count==200)
+							if(output_state_high_count==100)
 							{
 								output_state_high_count = 0;
 								output_level = 0;
@@ -456,7 +456,7 @@ void output_2min_handle(void)
 								output_level = 1;
 								
 								output_pulse_count++;
-								if(output_pulse_count==5)
+								if(output_pulse_count==7)
 								{
 									output_state = 2;
 									output_pulse_count = 0;
@@ -480,7 +480,7 @@ void output_2min_handle(void)
 						{
 							OUT_2MIN_DEF = 0;
 							output_state_low_count++;
-							if(output_state_low_count==200)
+							if(output_state_low_count==100)
 							{
 								output_state_low_count = 0;
 								output_level = 1;
