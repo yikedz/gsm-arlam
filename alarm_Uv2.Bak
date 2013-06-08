@@ -35,7 +35,7 @@ Options 1,0,0  // Target 'Target 1'
  OrgReg (ÿAtmel\)
  TgStat=16
  OutDir (.\)
- OutName (alarmv17)
+ OutName (alarmv18)
  GenApp=1
  GenLib=0
  GenHex=1

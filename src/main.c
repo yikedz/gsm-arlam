@@ -205,7 +205,7 @@ void handle_in1(void)
 						high_count = 0;
 						OUT1 = 1;
 						high_state = 1;
-						pulse_count++;
+						pulse_count = 0;
 					}			
 				}			
 			}
